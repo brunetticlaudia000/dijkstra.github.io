@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+    
+
+    <title>Dijkstra Game</title>
+    <style>
+
+        html, body{
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(to bottom right, #87CEEB, #ADD8E6);
+        }
+
+        #title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        #title-container img {
+            width: 600px;
+            height: auto;
+            margin-bottom: 5px;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 5vh;
+        }
+
+        #viteQuantita{
+            display: flex;
+            flex-direction: row;
+            align-items: center ;
+            justify-content:center;
+            height: 100%;
+            margin-bottom: 20px;
+        }
+        .vita{
+            width: 50px;
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .qtVite{
+            font-size: 20px;
+        }
+
+
+
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(10%, 20%));
+            grid-template-rows: repeat(5, minmax(10%, 20%));
+            gap: 2px;
+            margin: 0;
+            flex-direction: row;
+        }
+
+        #gridBox{
+            display: flex;
+            flex-direction: row;
+            position: relative; 
+            align-items: center ;
+            justify-content:center;
+            height: 100%;
+        }
+
+      
+        .viola, .quantum{
+            width: 10%;
+            height: auto;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5vw;
+        }
+
+        .start {
+            background-color: green;
+        }
+
+        .end {
+            background-color: red;
+        }
+
+        .visited {
+            background-color: yellow;
+        }
+
+        .shortest-path {
+            background-color: blue;
+            color: white;
+        }
+
+        #start-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        #result {
+            margin-top: 2vh;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        #button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        #start-btn, #verifica, #mostra {
+            margin: 0 10px;
+            width: 200px;
+            height: 30px;
+            padding: 15px 0;
+            font-size: 20px;
+            line-height: 3px;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+
+
+
+        h6, p{
+            text-align: center;
+            max-width: 80%;
+            word-wrap: break-word;
+
+        }
+
+        
+
+ 
+        @media (max-width: 767px) {
+            #title-container img {
+                max-width: 90%;
+                height: auto;
+            }
+            
+            #grid {
+                display: grid;
+                grid-template-columns: repeat(5, minmax(10%, 20%));
+                grid-template-rows: repeat(5, minmax(10%, 20%));
+                gap: 2px;
+                margin: 0;
+            }
+
+
+            .cell {
+                width: 45px; /* Larghezza proporzionale per adattarsi alla griglia */
+                height: 45px; /* Altezza proporzionale per mantenere la forma quadrata delle celle */
+                font-size: 35px; /* Dimensione del testo proporzionata */
+            }
+
+            #button-container {
+                display: flex;
+                flex-direction: column; /* Posiziona i pulsanti in colonna */
+                align-items: center; /* Allinea i pulsanti al centro */
+            }
+
+            #start-btn, #verifica, #mostra {
+                margin-bottom: 10px;
+
+            }
+        }
+
+
+
+    </style>
+</head>
+
+<body>
+    <div id="body">
+        <div id="title-container">
+            <img src="titolo.png" alt="SUPER HEROES">
+            <img src="alg.png" alt="Algoritmo di Dijkstra">
+        </div>
+
+        <div id="game-container">
+            <h6> Viola Vortex deve correre ad aiutare il suo amico
+                Quantum Surge nella sua battaglia, <br> 
+                per farlo può spostarsi dal punto in cui si trova
+                di una casella verso destra o di una casella verso 
+                il basso,per farlo ha poche risorse a disposizione. 
+                <br> Aiutala a raggiungere Quantum Surge suggerendole il 
+                percorso più breve! </h6>   
+
+            <p> ps: seleziona le celle del percorso compreso il 
+                punto di partenza dove si trova Viola Vortex e il punto di 
+                arrivo dove si trova Viola Vortex</p>
+            
+            <br>
+
+            <div id="viteQuantita">     </div>
+
+            
+            <div id="gridBox">
+                <img src="super_girl.png" alt="Viola Vortex" class="viola">
+                <div id="grid"></div>
+                <img src="super_man.png" alt="Quantum Surge" class="quantum">
+            </div>
+            
+            <div id="result"></div>
+            <div id="button-container">
+                <button id="start-btn">Crea Gioco</button>
+                <button id="verifica">Verifica</button>
+                <button id="mostra">Mostra soluzione</button>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            //ottenimento dei rifermenti agli elementi della pagina
+            const grid = document.getElementById('grid');
+            const result = document.getElementById('result');
+            const startBtn = document.getElementById('start-btn');
+            const verificaBtn = document.getElementById('verifica');
+            const mostraBtn = document.getElementById('mostra');
+            const mq=document.getElementById('viteQuantita')
+          
+            
+            // Creazione dell'immagine delle vite e dell'elemento per le vite
+            const viteImg = document.createElement('img');
+            viteImg.src = 'vite.png';
+            viteImg.alt = 'Vite a disposizione:';
+            viteImg.classList.add('vita');
+            
+
+            //inizializazione delle vite 
+            let vite;
+            const viteElement = document.createElement('div');
+            viteElement.textContent = vite;
+            viteElement.classList.add('qtVite');
+
+            
+            let rows = 5; //righe della matrice
+            let cols = 5;//colonne della matrice
+            let shortestPathLength =0; //variabile utilizzata per il calcolare il peso del percorso minimo ottenuto dall'applicazione dell'algoritmo
+            let shortPathUtenteLength =0; //variabile utilizzata per il calcolare il peso del "tentativo" percorso minimo indicato dall'utente
+            
+
+            //flag
+            let isGameStarted = false; //indica se il gioco è in corso
+            let isVerifying = false; //indica se la verifica è in corso
+            let isSolutionShown = false; //indica se la soluzione è stata mostrata
+            verificaBtn.disabled = true; // Disabilita il pulsante di verifica
+            mostraBtn.disabled=true;//Disabilita il pulsante mostra soluzione 
+
+
+            //gestori degli eventi
+            startBtn.addEventListener('click', startGame); //avvio del gico 
+            mostraBtn.addEventListener('click', mostraSoluzione); // mostra soluzione 
+            verificaBtn.addEventListener('click', verifica); //verifica il percorso inserito dall'utente 
+
+            
+
+            // Gestore di eventi al click per gli elementi della griglia
+            function toggleCellSelection(event)  {
+                // Se il gioco non è iniziato o la verifica è in corso, esci dalla funzione
+                if (!isGameStarted || isVerifying) return; 
+                
+                const cell = event.target; //Ottiene l'elemento HTML su cui è stato effettuato il click
+                const cellContent = cell.textContent;
+
+                // Se l'elemento cliccato non è una cella, esci dalla funzione
+                if (!cell.classList.contains('cell')) return; 
+
+                // Cambia la classe dell'elemento cliccato in 'visited'
+                //modifica la quantità di vite disponibili
+                if (cell.classList.contains('visited')) {
+                    cell.classList.remove('visited');
+                    if (cellContent !== "V" && cellContent !== "Q" && parseInt(cellContent) !== 0) {
+                        vite += parseInt(cellContent);
+                        viteElement.textContent = vite;
+                    }
+                } else {
+                    cell.classList.add('visited');
+                    if (cellContent !== "V" && cellContent !== "Q" && parseInt(cellContent) !== 0) {
+                        vite -= parseInt(cellContent);
+                        viteElement.textContent = vite;
+                    }
+                }
+            };
+
+
+
+
+            //funzione per avviare il gioco e creare la griglia 
+            function startGame() {
+                //aggiornamento delle impostazioni iniziali del gioco
+                grid.innerHTML = '';
+                result.textContent = '';
+                vite = 81;
+                viteElement.textContent = vite;
+                mq.appendChild(viteImg);
+                mq.appendChild(viteElement);
+
+                verificaBtn.disabled = false; // Abilita il pulsante 'verifica'
+                mostraBtn.disabled=false;//abilita il pulsante 'mostra soluzione'
+
+                isVerifying = false; //verifica non in corso
+                isSolutionShown = false; //soluzione non mostrata
+                isGameStarted = true; //gioco avviato
+
+                // Genera le celle della gliglia 
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const cell = document.createElement('div');
+                        cell.classList.add('cell');
+                        if (i === 0 && j === 0) {
+                            cell.textContent = "V"; // Assegna "V" alla cella (0, 0)
+                            cell.classList.add('start'); 
+                        } else if (i === rows-1 && j === cols-1) {
+                            cell.textContent = "Q"; 
+                            cell.classList.add('end'); 
+                        }else{
+                            cell.textContent = Math.floor(Math.random() * 10); // Assegna un peso casuale alla cella
+                        }
+                        grid.appendChild(cell);
+                    }
+                }
+
+
+                
+                // Abilita la selezione delle celle
+                grid.querySelectorAll('.cell').forEach(cell => {
+                    cell.addEventListener('click', toggleCellSelection);
+                    cell.style.cursor = 'pointer';
+                });
+            }
+
+
+
+            // Funzione per mostrare la soluzione del percorso più breve
+            function mostraSoluzione(){
+                isSolutionShown = true;
+                verificaBtn.disabled = true;
+
+                // chiamata alla funzione per l'algoritmo di dijkstra
+                const distances = dijkstraAlgorithm(rows, cols);
+
+                // chiama la funzione per mostrare la soluzione
+                showShortestPath(distances);
+
+                //disabilita l'interazione con le celle
+                grid.querySelectorAll('.cell').forEach(cell => {
+                    cell.style.pointerEvents = 'none';
+                });
+            }
+
+            //verifica che il percorso inserito dall'utente sia una soluzione
+            function verifica() {
+                shortPathUtenteLength = 0;
+                if (!isGameStarted || isVerifying) return;
+                isVerifying = true;
+
+                // Calcola la lunghezza del percorso inserito dall'utente
+                const visitedCells = grid.getElementsByClassName('visited');
+                console.log("cell", visitedCells)
+                Array.from(visitedCells).forEach(cell => {
+                    
+                    if (cell.textContent !== "V" && cell.textContent !== "Q") {
+                        shortPathUtenteLength += parseInt(cell.textContent);
+                    }
+                });
+
+                let verifPerc = false;
+                let currentCell = grid.querySelector('.start'); // Trova la cella di partenza
+
+                // Esegui l'iterazione fino a quando non raggiungi la cella di destinazione (P)
+                while (!currentCell.classList.contains('end')) {
+                  
+                    const currentCellIndex = Array.from(grid.children).indexOf(currentCell);
+                    const rightNeighborIndex = currentCellIndex + 1;
+                    const leftNeighborIndex = currentCellIndex + 5;
+
+                    // Trova i vicini destro e sinistro della cella corrente
+                    const rightNeighbor = grid.children[rightNeighborIndex];
+                    const leftNeighbor = grid.children[leftNeighborIndex];
+
+                     // Controlla se i vicini sono stati visitati e scegli di conseguenza la prossima cella
+                    if (rightNeighbor && rightNeighbor.classList.contains('visited')) {
+                        currentCell = rightNeighbor;
+                    } else if (leftNeighbor && leftNeighbor.classList.contains('visited')) {
+                        currentCell = leftNeighbor;
+                    } else {
+                        // Se nessuno dei vicini è visitato, interrompi il loop
+                        break;
+                    }
+                    // Se la cella corrente è quella finale, esci dal loop
+                    if (currentCell.classList.contains('end')) {
+                        verifPerc = true;
+                        break;
+                    }
+                }
+
+                console.log(verifPerc)
+
+                //Esegue l'algoritmo di Dijkstra 
+                const distances = dijkstraAlgorithm(rows, cols);
+                shortestPathLength = 0;
+                let x = rows - 1;
+                let y = cols - 1;
+
+                //calcola il peso del percorso più breve
+                while (x !== 0 || y !== 0) {
+                    const cellContent = grid.children[x * cols + y].textContent;
+                    if (cellContent !== "V" && cellContent !== "Q") {
+                        shortestPathLength += parseInt(cellContent);
+                    }
+
+                     // Trova la prossima cella da visitare utilizzando l'algoritmo di Dijkstra
+                    const directions = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
+                    let minDistance = Infinity;
+                    let nextX = x;
+                    let nextY = y;
+
+                    for (const dir of directions) {
+                        const neighborX = x + dir.x;
+                        const neighborY = y + dir.y;
+
+                        // Trova la cella con la distanza minima
+                        if (neighborX >= 0 && neighborX < rows && neighborY >= 0 && neighborY < cols && distances[neighborX][neighborY] < minDistance) {
+                            minDistance = distances[neighborX][neighborY];
+                            nextX = neighborX;
+                            nextY = neighborY;
+                        }
+                    }
+
+                    x = nextX;
+                    y = nextY;
+                }
+
+
+                console.log("ut", shortPathUtenteLength);
+                console.log("p", shortestPathLength);
+
+                // Verifica se il percorso dell'utente è corretto e visualizza il risultato
+                if (shortPathUtenteLength === shortestPathLength && verifPerc===true) {
+                    result.textContent = "Complimenti! Il percorso è corretto.";
+                } else {
+                    result.textContent = "Ritenta! Il percorso non è corretto.";
+                    resetGame();
+                }
+            }
+
+
+            // Funzione per reimpostare il gioco
+            function resetGame() {
+                const visitedCells = grid.getElementsByClassName('visited');
+                Array.from(visitedCells).forEach(cell => cell.classList.remove('visited'));
+                vite = 81;
+                viteElement.textContent = vite;
+                isGameStarted = true;
+                isVerifying = false;
+                if (isSolutionShown) {
+                    // Se la soluzione è stata mostrata, riabilita il pulsante 'verifica'
+                    verificaBtn.disabled = true ;
+                    isSolutionShown = false;
+                }
+                
+                // Riabilita la selezione delle celle
+                grid.querySelectorAll('.cell').forEach(cell => {
+                    cell.addEventListener('click', toggleCellSelection);
+                    cell.style.cursor = 'pointer';
+                 });
+            }
+
+
+            // Funzione per eseguire l'algoritmo di Dijkstra
+            function dijkstraAlgorithm(rows, cols) {
+                // Inizializza la matrice delle distanze
+                const distances = Array.from({ length: rows }, () => Array(cols).fill(Infinity));
+                distances[0][0] = 0; // La distanza dalla cella iniziale a se stessa è 0
+
+                // Crea una coda di priorità per le celle da visitare
+                const queue = [{ x: 0, y: 0 }];
+
+                //calcola le distanze utilizzando l'alg. di D.
+                while (queue.length > 0) {
+                    // Estrai la cella con la minima distanza dalla coda
+                    const { x, y } = queue.shift();
+
+                    // Definisci i possibili spostamenti: destra e sotto
+                    const directions = [{ x: 0, y: 1 }, { x: 1, y: 0 }];
+
+                    for (const dir of directions) {
+                        const newX = x + dir.x;
+                        const newY = y + dir.y;
+
+                        // Controlla se la nuova cella è valida e se la nuova distanza è minore
+                        if (newX >= 0 && newX < rows && newY >= 0 && newY < cols) {
+                            const newDistance = distances[x][y] + parseInt(grid.children[newX * cols + newY].textContent);
+                            if (newDistance < distances[newX][newY]) {
+                                distances[newX][newY] = newDistance;
+                                queue.push({ x: newX, y: newY });
+                            }
+                        }
+                    }
+                }
+
+                return distances;
+            }
+
+
+            //funzione per visualizzare il percorso più breve
+            function showShortestPath(distances) {
+                shortestPathLength =0;
+                let x = rows - 1;
+                let y = cols - 1;
+                
+                //calcola il peso del percorso
+                while (x !== 0 || y !== 0) {
+                    const cellContent = grid.children[x * cols + y].textContent;
+                    if (cellContent !== "V" && cellContent !== "Q") {
+                        grid.children[x * cols + y].classList.add('shortest-path');
+                        shortestPathLength += parseInt(cellContent);
+                    } 
+
+                    //Trova la prossima cella del percorso più breve
+                    const directions = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
+                    let minDistance = Infinity;
+                    let nextX = x;
+                    let nextY = y;
+
+                    for (const dir of directions) {
+                        const neighborX = x + dir.x;
+                        const neighborY = y + dir.y;
+
+                        if (neighborX >= 0 && neighborX < rows && neighborY >= 0 && neighborY < cols && distances[neighborX][neighborY] < minDistance) {
+                            minDistance = distances[neighborX][neighborY];
+                            nextX = neighborX;
+                            nextY = neighborY;
+                        }
+                    }
+
+                    // Aggiungiamo il peso della cella corrente alla lunghezza del percorso
+                    
+                    x = nextX;
+                    y = nextY;
+                }
+
+
+
+                // Colora la prima cella di verde
+                grid.children[0].classList.add('start');
+                // Colora l'ultima cella di rosso
+                grid.children[24].classList.replace('shortest-path', 'end');
+
+
+                result.textContent = "Il percorso più breve fa spendere meno risorse a Viola Vortex: " + shortestPathLength, "vite";
+            }
+        });
+
+
+                
+    </script>
+</body>
+</html>
